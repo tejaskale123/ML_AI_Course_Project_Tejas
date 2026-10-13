@@ -1,0 +1,34 @@
+# Python bytecode and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local Python environments and downloaded runtimes
+.venv/
+venv/
+env/
+ENV/
+python_local/
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+*.secret
+*.pem
+*.key
+*.p12
+*.pfx
+*_credentials.*
+credentials.json
+secrets/
+
+# Generated model and workflow artifacts
+models/*
+!models/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+outputs/plots/*
+!outputs/plots/.gitkeep
+outputs/reports/*
+!outputs/reports/.gitkeep
