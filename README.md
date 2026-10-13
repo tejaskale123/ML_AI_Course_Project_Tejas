@@ -6,6 +6,7 @@ This project contains a small Windows-friendly machine learning workspace that d
 - Titanic survival prediction using Logistic Regression, Decision Tree, Random Forest, and K-Nearest Neighbors
 - Week 2 model comparison, decision-tree depth validation, model artifacts, prediction tables, and plots
 - Week 3 Iris clustering with K-Means, the Elbow Method, feature scaling, PCA, and saved/reloaded model artifacts
+- Week 4 customer segmentation capstone plus a separate cross-validation/SVM evaluation exercise
 
 The project is designed to run locally from a desktop folder without changing any existing global Python environment.
 
@@ -15,6 +16,11 @@ The project is designed to run locally from a desktop folder without changing an
 - `tests/test_ml_workflows.py` - pytest coverage for preprocessing, workflow execution, and validation checks
 - `docs/week2_supervised_learning.md` - Week 2 algorithms, practice answers, and execution guide
 - `docs/week3_iris_clustering.md` - Week 3 clustering/PCA explanations and execution guide
+- `src/week4_capstone.py` - Week 4 customer segmentation and supervised model-evaluation workflows
+- `tests/test_week4_capstone.py` - Week 4 data, clustering, SVM, artifact, and menu tests
+- `docs/week4_customer_segmentation.md` - Week 4 methods and dataset setup
+- `docs/week4_project_report.md` - capstone report and factual execution results
+- `docs/week4_presentation_outline.md` - short beginner presentation outline
 - `data/raw/` - downloaded or provided raw datasets
 - `data/processed/` - cleaned/processed output CSV files
 - `outputs/plots/` - generated plot images
@@ -33,6 +39,9 @@ The project is designed to run locally from a desktop folder without changing an
 - Stratified holdout evaluation and stratified cross-validation for decision-tree depth selection
 - Saved regression/classification estimators, holdout predictions, comparison tables, and metrics
 - Reproducible Iris clustering, Elbow Method analysis, two-component PCA, and cluster/species comparison
+- K-Means customer segmentation with clear synthetic-data provenance when the Mall dataset is absent
+- Separate stratified cross-validation and leakage-safe SVM GridSearchCV practice workflow
+- Joblib saving/loading with verified repeat predictions for Week 4 models
 - CSV and plot generation saved only within this project folder
 
 ## Windows setup
@@ -65,6 +74,7 @@ Menu options:
 4. Exit
 5. Run Week 2 (house regression + Titanic model comparison)
 6. Run Week 3 (Iris clustering and PCA)
+7. Run Week 4 (customer segmentation + model evaluation)
 
 ## Running tests
 
@@ -103,6 +113,10 @@ Generated output files are local, ignored by Git, and created inside the project
 - Week 3 reports and predictions under `outputs/reports/iris_*.csv` and `outputs/reports/week3_iris_clustering_report.json`
 - Week 3 visualizations under `outputs/plots/week3_iris_*.png`
 - Week 3 fitted objects: `models/iris_scaler.joblib`, `models/iris_kmeans.joblib`, and `models/iris_pca.joblib`
+- Week 4 customer reports/CSV files: `outputs/reports/week4_customer_*.csv`, `week4_customer_*_quality.json`, and `week4_customer_segmentation_report.json`
+- Week 4 SVM reports/CSV files: `outputs/reports/week4_svm_*.csv` and `week4_svm_evaluation_report.json`
+- Week 4 plots: `outputs/plots/week4_customer_*.png` and `outputs/plots/week4_svm_*.png`
+- Week 4 models: `models/week4_customer_scaler.joblib`, `models/week4_customer_kmeans.joblib`, and `models/week4_svm_best_model.joblib`
 
 ## Known limitations
 
@@ -128,6 +142,19 @@ $conda = "$env:USERPROFILE\miniconda3\condabin\conda.bat"
 ```
 
 See [docs/week3_iris_clustering.md](docs/week3_iris_clustering.md) for the method, output descriptions, and interpretation notes.
+
+## Week 4 capstone and practice
+
+Select menu option **7** to run customer segmentation and the separate cross-validation/SVM exercises. The capstone looks for `data/raw/Mall_Customers.csv`. If that real dataset is not present, it uses an explicitly identified, deterministic **synthetic teaching fallback**; no generated observations are represented as actual mall customers. To use the real data, download `Mall_Customers.csv` from [Kaggle's Customer Segmentation Tutorial dataset](https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python) and place it at `data/raw/Mall_Customers.csv`.
+
+The supervised practice uses scikit-learn's built-in Wisconsin Breast Cancer classification dataset. It demonstrates stratified cross-validation with `cross_val_score`, an SVM `Pipeline` with scaling inside cross-validation, `GridSearchCV`, held-out evaluation, and joblib model reload.
+
+```powershell
+$conda = "$env:USERPROFILE\miniconda3\condabin\conda.bat"
+& $conda run -p .\.venv python -c "from src.week4_capstone import run_week4_workflows; print(run_week4_workflows())"
+```
+
+See [docs/week4_customer_segmentation.md](docs/week4_customer_segmentation.md), [docs/week4_project_report.md](docs/week4_project_report.md), and [docs/week4_presentation_outline.md](docs/week4_presentation_outline.md).
 
 ## Notes
 

@@ -495,6 +495,7 @@ def terminal_menu() -> None:
         print("4. Exit")
         print("5. Run Week 2 (house regression + Titanic model comparison)")
         print("6. Run Week 3 (Iris clustering and PCA)")
+        print("7. Run Week 4 (customer segmentation + model evaluation)")
         choice = input("Select an option: ").strip()
 
         if choice in {"1", "house", "house-price"}:
@@ -555,8 +556,47 @@ def terminal_menu() -> None:
                     indent=2,
                 )
             )
+        elif choice in {"7", "week4", "week 4"}:
+            from src.week4_capstone import run_week4_workflows
+
+            week4_reports = run_week4_workflows()
+            print(
+                json.dumps(
+                    {
+                        "customer_segmentation": {
+                            "dataset_source": week4_reports["customer_segmentation"][
+                                "dataset_source"
+                            ],
+                            "model_metrics": week4_reports["customer_segmentation"][
+                                "model_metrics"
+                            ],
+                            "cluster_summary": week4_reports["customer_segmentation"][
+                                "cluster_summary"
+                            ],
+                            "output_files": week4_reports["customer_segmentation"][
+                                "output_files"
+                            ],
+                        },
+                        "svm_evaluation": {
+                            "cross_validation": week4_reports["model_evaluation"][
+                                "cross_validation"
+                            ],
+                            "grid_search": week4_reports["model_evaluation"][
+                                "grid_search"
+                            ],
+                            "held_out_metrics": week4_reports["model_evaluation"][
+                                "held_out_metrics"
+                            ],
+                            "output_files": week4_reports["model_evaluation"][
+                                "output_files"
+                            ],
+                        },
+                    },
+                    indent=2,
+                )
+            )
         else:
-            print("Invalid option. Please choose 1, 2, 3, 4, 5, or 6.")
+            print("Invalid option. Please choose 1, 2, 3, 4, 5, 6, or 7.")
 
 
 if __name__ == "__main__":
