@@ -5,6 +5,7 @@ This project contains a small Windows-friendly machine learning workspace that d
 - House price prediction using a regression model
 - Titanic survival prediction using Logistic Regression, Decision Tree, Random Forest, and K-Nearest Neighbors
 - Week 2 model comparison, decision-tree depth validation, model artifacts, prediction tables, and plots
+- Week 3 Iris clustering with K-Means, the Elbow Method, feature scaling, PCA, and saved/reloaded model artifacts
 
 The project is designed to run locally from a desktop folder without changing any existing global Python environment.
 
@@ -13,6 +14,7 @@ The project is designed to run locally from a desktop folder without changing an
 - `src/ml_workflows.py` - reusable ML data-prep and workflow functions
 - `tests/test_ml_workflows.py` - pytest coverage for preprocessing, workflow execution, and validation checks
 - `docs/week2_supervised_learning.md` - Week 2 algorithms, practice answers, and execution guide
+- `docs/week3_iris_clustering.md` - Week 3 clustering/PCA explanations and execution guide
 - `data/raw/` - downloaded or provided raw datasets
 - `data/processed/` - cleaned/processed output CSV files
 - `outputs/plots/` - generated plot images
@@ -30,6 +32,7 @@ The project is designed to run locally from a desktop folder without changing an
 - Training-only preprocessing for Titanic models, including missing-value imputation, one-hot encoding, and feature scaling for distance/linear models
 - Stratified holdout evaluation and stratified cross-validation for decision-tree depth selection
 - Saved regression/classification estimators, holdout predictions, comparison tables, and metrics
+- Reproducible Iris clustering, Elbow Method analysis, two-component PCA, and cluster/species comparison
 - CSV and plot generation saved only within this project folder
 
 ## Windows setup
@@ -61,6 +64,7 @@ Menu options:
 3. Run all workflows
 4. Exit
 5. Run Week 2 (house regression + Titanic model comparison)
+6. Run Week 3 (Iris clustering and PCA)
 
 ## Running tests
 
@@ -96,6 +100,9 @@ Generated output files are local, ignored by Git, and created inside the project
 - `outputs/reports/titanic_model_report.json`
 - `outputs/reports/titanic_week2_report.json`
 - `models/house_price_linear_regression.joblib` and `models/titanic_*.joblib`
+- Week 3 reports and predictions under `outputs/reports/iris_*.csv` and `outputs/reports/week3_iris_clustering_report.json`
+- Week 3 visualizations under `outputs/plots/week3_iris_*.png`
+- Week 3 fitted objects: `models/iris_scaler.joblib`, `models/iris_kmeans.joblib`, and `models/iris_pca.joblib`
 
 ## Known limitations
 
@@ -108,6 +115,19 @@ Generated output files are local, ignored by Git, and created inside the project
 ## Week 2 course material
 
 See [docs/week2_supervised_learning.md](docs/week2_supervised_learning.md) for beginner-level explanations, practice question solutions, validation design, and artifact details.
+
+## Week 3 course material
+
+The Iris workflow uses scikit-learn's built-in 150-row Iris dataset and does not require a manual dataset download. It standardizes the four features, fits K-Means with three clusters, computes an inertia curve, fits two-component PCA, compares clusters with the known species labels, and saves/reloads the fitted scaler, clusterer, and PCA model. Cluster IDs are arbitrary and are not assumed to equal Iris species IDs.
+
+Run Week 3 by selecting menu option **6**, or directly from PowerShell in the project root:
+
+```powershell
+$conda = "$env:USERPROFILE\miniconda3\condabin\conda.bat"
+& $conda run -p .\.venv python -c "from src.week3_clustering import run_iris_clustering_workflow; print(run_iris_clustering_workflow())"
+```
+
+See [docs/week3_iris_clustering.md](docs/week3_iris_clustering.md) for the method, output descriptions, and interpretation notes.
 
 ## Notes
 

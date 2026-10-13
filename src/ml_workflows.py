@@ -494,6 +494,7 @@ def terminal_menu() -> None:
         print("3. Run all workflows")
         print("4. Exit")
         print("5. Run Week 2 (house regression + Titanic model comparison)")
+        print("6. Run Week 3 (Iris clustering and PCA)")
         choice = input("Select an option: ").strip()
 
         if choice in {"1", "house", "house-price"}:
@@ -520,8 +521,42 @@ def terminal_menu() -> None:
                     indent=2,
                 )
             )
+        elif choice in {"6", "week3", "week 3"}:
+            from src.week3_clustering import run_iris_clustering_workflow
+
+            iris_report = run_iris_clustering_workflow()
+            print(
+                json.dumps(
+                    {
+                        "dataset_shape": [
+                            iris_report["sample_count"],
+                            iris_report["feature_count"],
+                        ],
+                        "feature_names": iris_report["feature_names"],
+                        "target_names": iris_report["target_names"],
+                        "cluster_centers_scaled": iris_report["cluster_centers_scaled"],
+                        "cluster_centers_original_units": iris_report[
+                            "cluster_centers_original_units"
+                        ],
+                        "predicted_cluster_labels": iris_report[
+                            "predicted_cluster_labels"
+                        ],
+                        "pca_explained_variance_ratio": iris_report[
+                            "pca_explained_variance_ratio"
+                        ],
+                        "pca_cumulative_explained_variance": iris_report[
+                            "pca_cumulative_explained_variance"
+                        ],
+                        "predictions_match_after_joblib_reload": iris_report[
+                            "predictions_match_after_joblib_reload"
+                        ],
+                        "output_files": iris_report["output_files"],
+                    },
+                    indent=2,
+                )
+            )
         else:
-            print("Invalid option. Please choose 1, 2, 3, 4, or 5.")
+            print("Invalid option. Please choose 1, 2, 3, 4, 5, or 6.")
 
 
 if __name__ == "__main__":
