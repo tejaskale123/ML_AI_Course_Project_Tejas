@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
+import src.ml_workflows as workflows
 from src.ml_workflows import (
+    PROJECT_ROOT,
     evaluate_classification,
     prepare_house_data,
     prepare_titanic_data,
     run_house_price_workflow,
     run_titanic_workflow,
+    run_week2_titanic_comparison,
     safe_load_csv,
 )
 
@@ -42,9 +45,29 @@ def test_prepare_titanic_data_handles_missing_and_encodes_features() -> None:
         }
     )
     X, y = prepare_titanic_data(df)
-    assert set(X.columns) >= {"pclass", "age", "sibsp", "parch", "fare", "sex_female", "sex_male", "embarked_C", "embarked_Q", "embarked_S"}
-    assert X.isna().sum().sum() == 0
+    assert list(X.columns) == ["pclass", "sex", "age", "sibsp", "parch", "fare", "embarked"]
+    assert X["age"].isna().sum() == 1
+    assert X["embarked"].isna().sum() == 1
     assert y.tolist() == [1, 0, 1, 0]
+
+
+def test_prepare_titanic_data_rejects_missing_target_and_empty_data() -> None:
+    with pytest.raises(ValueError, match="empty"):
+        prepare_titanic_data(pd.DataFrame())
+    frame = pd.DataFrame(
+        {
+            "survived": [None],
+            "pclass": [1],
+            "sex": ["female"],
+            "age": [20],
+            "sibsp": [0],
+            "parch": [0],
+            "fare": [10],
+            "embarked": ["S"],
+        }
+    )
+    with pytest.raises(ValueError, match="missing values"):
+        prepare_titanic_data(frame)
 
 
 def test_house_price_workflow_saves_outputs(tmp_path) -> None:
@@ -59,6 +82,9 @@ def test_house_price_workflow_saves_outputs(tmp_path) -> None:
     assert report["metrics"]["r2"] > 0.5
     assert (tmp_path / "plots" / "house_price_predictions.png").exists()
     assert (tmp_path / "reports" / "house_price_report.json").exists()
+    assert (tmp_path / "reports" / "house_price_predictions.csv").exists()
+    assert (tmp_path / "processed" / "house_prices_model_data.csv").exists()
+    assert (PROJECT_ROOT / "models" / "house_price_linear_regression.joblib").exists()
 
 
 def test_titanic_workflow_saves_outputs(tmp_path) -> None:
@@ -90,3 +116,52 @@ def test_regression_and_classification_metrics_are_numeric() -> None:
     regression = evaluate_classification(y_true, y_pred)
     assert all(isinstance(value, float) for value in regression.values())
     assert set(regression) == {"accuracy", "precision", "recall", "f1"}
+
+
+def test_week2_titanic_workflow_saves_comparison_predictions_and_models(tmp_path) -> None:
+    dataset_path = PROJECT_ROOT / "data" / "raw" / "titanic.csv"
+    if not dataset_path.exists():
+        pytest.skip("Genuine Titanic dataset is not present.")
+
+    report = run_week2_titanic_comparison(
+        dataset_path,
+        output_dir=tmp_path / "outputs",
+        model_dir=tmp_path / "models",
+    )
+
+    assert report["dataset_rows"] == 891
+    assert report["decision_tree_max_depth_selected_by_validation"] in {
+        1, 2, 3, 4, 5, 8, None
+    }
+    assert {row["model"] for row in report["model_metrics"]} == {
+        "Logistic Regression",
+        "Decision Tree",
+        "Random Forest",
+        "K-Nearest Neighbors",
+    }
+    assert all(0.0 <= row["accuracy"] <= 1.0 for row in report["model_metrics"])
+    assert len(pd.read_csv(tmp_path / "outputs" / "reports" / "titanic_model_comparison.csv")) == 4
+    assert len(pd.read_csv(tmp_path / "outputs" / "reports" / "titanic_predictions.csv")) == 179
+    assert len(pd.read_csv(tmp_path / "outputs" / "reports" / "titanic_tree_depth_validation.csv")) == 7
+    assert len(list((tmp_path / "models").glob("titanic_*.joblib"))) == 4
+    assert (tmp_path / "outputs" / "plots" / "titanic_model_comparison.png").exists()
+    assert (tmp_path / "outputs" / "plots" / "titanic_tree_depth_validation.png").exists()
+    assert (tmp_path / "outputs" / "plots" / "titanic_confusion_matrices.png").exists()
+
+
+def test_menu_preserves_week1_exit_and_dispatches_week2(capsys) -> None:
+    with patch("builtins.input", side_effect=["5", "4"]), patch.object(
+        workflows, "run_house_price_workflow", return_value={"metrics": {"r2": 0.5}}
+    ) as house_run, patch.object(
+        workflows,
+        "run_week2_titanic_comparison",
+        return_value={"model_metrics": [{"model": "test", "accuracy": 1.0}]},
+    ) as titanic_run:
+        workflows.terminal_menu()
+    house_run.assert_called_once_with()
+    titanic_run.assert_called_once_with()
+    assert "Week 2" in capsys.readouterr().out
+
+    with patch("builtins.input", side_effect=["4"]):
+        workflows.terminal_menu()
+    assert "Goodbye." in capsys.readouterr().out
